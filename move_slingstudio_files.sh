@@ -17,10 +17,7 @@
 # All the other levels of hierarchy above and below are consistently named.
 
 SLING_ROOT_FOLDER="/Volumes/SlingStudio/SlingStudio/SlingStudioProjects"
-SLING_ROOT_FOLDER="/Users/brucebramhall/foo/SlingStudio/SlingStudio/SlingStudioProjets"
-
 DESTINATION_ROOT_FOLDER="/Users/projection/Movies/Manually Copied"
-DESTINATION_ROOT_FOLDER="/Users/brucebramhall/bar"
 
 # Find the newest mp4 of the newest project
 newest_project=$(ls -td $SLING_ROOT_FOLDER/* | head -n1)
