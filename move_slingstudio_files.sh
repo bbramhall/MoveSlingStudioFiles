@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Script needed:
 # 
 # The goal is to find the newest MyProject-n folder.  Once found, 
@@ -28,10 +30,10 @@ if [[ -z $newest_project ]]; then
 fi
 echo "Newest project: $newest_project"
 
-# If you want to search for the newest .mp4 file in only the
-# "Program_Recordings" sub directory then uncomment the next
+# If you want to search for the newest .mp4 file in sub dirs other than the
+# "Program_Recordings" sub directory then comment out the next
 # line.
-#recordings_folder="Program_Recordings"
+recordings_folder="Program_Recordings"
 
 newest_mp4=$(find $newest_project/$recordings_folder -type f -print0 | xargs -0 stat -f "%m %N" | sort -rn | head -1 | cut -f2- -d" ")
 if [[ -z $newest_mp4 ]]; then
