@@ -18,26 +18,20 @@
 
 SLING_ROOT_FOLDER="/Volumes/SlingStudio/SlingStudio/SlingStudioProjects"
 DESTINATION_ROOT_FOLDER="/Users/projection/Movies/Manually Copied"
+RECORDINGS_FOLDER="Program_Recordings"
+PROJECT_FIELD=6
 
-# Find the newest mp4 of the newest project
-newest_project=$(ls -td $SLING_ROOT_FOLDER/* | head -n1)
-if [[ -z $newest_project ]]; then
-   echo "No project folders found in $SLING_ROOT_FOLDER"
-   exit 1
-fi
-echo "Newest project: $newest_project"
-
-# If you want to search for the newest .mp4 file in sub dirs other than the
-# "Program_Recordings" sub directory then comment out the next
-# line.
-recordings_folder="Program_Recordings"
-
-newest_mp4=$(find $newest_project/$recordings_folder -type f -print0 | xargs -0 stat -f "%m %N" | sort -rn | head -1 | cut -f2- -d" ")
+# Find the newest mp4 in all Program_Recordings folders
+newest_mp4=$(ls -t $SLING_ROOT_FOLDER/*/$RECORDINGS_FOLDER/*.mp4 | head -n1)
 if [[ -z $newest_mp4 ]]; then
-   echo "No .mp4 files found in $newest_project"
+   echo "No .mp4 files found in any $RECORDINGS_FOLDER folders"
    exit 1
 fi
 echo "Newest mp4: $newest_mp4"
+
+# Assume the newest project is that with the newest .mp4 file
+newest_project=$(echo $newest_mp4 | cut -f $PROJECT_FIELD -d '/')
+echo "Newest project: $newest_project"
 
 # Copy mp4 to destination
 ymd=$(date +%Y-%m-%d)
@@ -50,13 +44,24 @@ if (($?)); then
 fi
 echo "$newest_mp4 copied to $destination_folder"
 
+# Find the oldest mp4 in all RECORDINGS_FOLDERs
+oldest_mp4=$(ls -rt $SLING_ROOT_FOLDER/*/$RECORDINGS_FOLDER/*.mp4 | head -n1)
+if [[ -z $oldest_mp4 ]]; then
+   echo "No .mp4 files found in any $RECORDINGS_FOLDER folders"
+   exit 1
+fi
+echo "Oldest mp4: $oldest_mp4"
+
+# Assume the oldest project is that with the oldest .mp4 file
+oldest_project=$(echo $oldest_mp4 | cut -f $PROJECT_FIELD -d '/')
+echo "Oldest project: $oldest_project"
+
 # Remove the oldest project folder that is over 2 weeks old
-oldest_project=$(ls -rtd $SLING_ROOT_FOLDER/* | head -n1)
-oldest_project_ts=$(stat -f "%m" $oldest_project)
+oldest_mp4_ts=$(stat -f "%m" $oldest_mp4)
 now=$(date +%s)
 let two_weeks=2*7*24*60*60
 let two_weeks_ago_ts=now-two_weeks
-if (( oldest_project_ts < two_weeks_ago_ts )); then
+if (( oldest_mp4_ts < two_weeks_ago_ts )); then
    rm -r $oldest_project
    echo "Removed $oldest_project"
 else
